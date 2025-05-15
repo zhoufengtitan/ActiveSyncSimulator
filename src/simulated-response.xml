@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FolderSync xmlns="FolderHierarchy">
+    <Status>1</Status>
+    <SyncKey>45678</SyncKey>
+    <Changes>
+        <Count>2</Count>
+        <Add>
+            <ServerId>1</ServerId>
+            <ParentId>0</ParentId>
+            <DisplayName>Inbox</DisplayName>
+            <Type>2</Type>
+        </Add>
+        <Add>
+            <ServerId>2</ServerId>
+            <ParentId>1</ParentId>
+            <DisplayName>SubFolder</DisplayName>
+            <Type>12</Type>
+        </Add>
+    </Changes>
+</FolderSync>
