@@ -59,7 +59,7 @@ public class FolderSyncClient {
             os.flush();
         }
 
-        int responseCode = connection.getResponseCode();
+        int responseCode = conn.getResponseCode();
         if (responseCode != HttpURLConnection.HTTP_OK) {
             throw new RuntimeException("Request failed with code : " + responseCode);
         }
