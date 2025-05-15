@@ -17,6 +17,7 @@ public class FolderSyncClient {
         this.simulationMode = simulationMode;
     }
 
+    // Run the FolderSync operation
     public void runFolderSync(String syncKey, String deviceId, String policyKey) {
         try {
             String xmlResponse;
