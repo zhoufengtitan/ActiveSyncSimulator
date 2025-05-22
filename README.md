@@ -24,13 +24,47 @@ endpoint.
 • Include basic exception handling.
 
 
+Overview
+
+• Constructs an XML FolderSync request
+
+• Sends it via HTTP POST to a simulated local file-based endpoint
+
+• Parses a static XML response from a file
+
+• Extracts and prints: FolderId, DisplayName, and ParentId
+
+
+
 How to Use
 
 1, For simulation mode:
 
-    Run the ActiveSyncFolderSync class directly
+    • Open a terminal in that folder
+    • Compile: javac FolderSyncClient.java
+    • Run: java FolderSyncClient
 
-    It will read from the simulated XML file
+    Sample Output:
+    May 22, 2025 10:00:00 PM FolderSyncClient main
+    INFO: Sending FolderSync request:
+    <?xml version="1.0" encoding="UTF-8"?>
+    <FolderSync xmlns="FolderHierarchy">
+        <SyncKey>0</SyncKey>
+    </FolderSync>
+
+    May 22, 2025 10:00:00 PM FolderSyncClient runFolderSync
+    INFO: Folder 1:
+    FolderId: 1
+    DisplayName: Inbox
+    ParentId: 0
+
+    May 22, 2025 10:00:00 PM FolderSyncClient runFolderSync
+    INFO: Folder 2:
+    FolderId: 2
+    DisplayName: SubFolder
+    ParentId: 1
+
+
 
 2, For real HTTP mode:
 
