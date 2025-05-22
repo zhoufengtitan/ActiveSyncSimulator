@@ -3,8 +3,11 @@ import javax.xml.parsers.*;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.logging.*;
 
 public class FolderSyncClient {
+
+    private static final Logger logger = Logger.getLogger(FolderSyncClient.class.getName());        
 
     private static final String DEFAULT_ENDPOINT = "http://localhost:8080/foldersync";
     private static final String SIMULATED_RESPONSE_FILE = "simulated-response.xml";
@@ -18,7 +21,7 @@ public class FolderSyncClient {
     }
 
     // Run the FolderSync operation
-    public void runFolderSync(String syncKey, String deviceId, String policyKey) {
+    public void runFolderSync(String syncKey, String deviceId, String policyKey) throws Exception {
         try {
             String xmlResponse;
             if (simulationMode) {
@@ -28,12 +31,12 @@ public class FolderSyncClient {
                 xmlResponse = sendHttpRequest(xmlRequest, deviceId, policyKey);
             }
 
-            System.out.println("Received FolderSync response: " + xmlResponse);
+            logger.info("Received FolderSync response: " + xmlResponse);
             parseAndPrintResponse(xmlResponse);
 
         } catch (Exception e) {
-            System.err.println("Error during FolderSync operation: " + e.getMessage());
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Error during FolderSync operation: ", e);
+            throw e;
         }
     }
    
@@ -92,7 +95,7 @@ public class FolderSyncClient {
 
         NodeList folders = doc.getElementsByTagNameNS("FolderHierarchy", "Folder");
         if (folders.getLength() == 0) {
-            System.out.println("No folders found in response");
+            logger.info("No folders found in response");
             return;
         }
 
@@ -103,9 +106,12 @@ public class FolderSyncClient {
             String name = getElementText(folder, "DisplayName");
             String parentId = getElementText(folder, "ParentId");
 
-            System.out.println("FolderId: " + id);
-            System.out.println("DisplayName: " + name);
-            System.out.println("ParentId: " + parentId);
+            logger.info(String.format("Folder %d:\n  FolderId: %s\n  DisplayName: %s\n  ParentId: %s",
+                    i + 1,
+                    folderId != null ? folderId : "(missing)",
+                    displayName != null ? displayName : "(missing)",
+                    parentId != null ? parentId : "(missing)"
+            ));
         }
     }
 
@@ -115,6 +121,8 @@ public class FolderSyncClient {
     }
 
     public static void main(String[] args) {
+        configureLogging();
+        
         boolean simulationMode = true; // Set to false for HTTP requests
         ActiveSyncClinet folderSync = new ActiveSyncClinet(null, simulationMode);
         
@@ -122,6 +130,36 @@ public class FolderSyncClient {
         String deviceId = "test-device";
         String policyKey = "45678";
         
-        folderSync.runFolderSync(syncKey, deviceId, policyKey);
+        try {
+            // Validate inputs
+            ivalidateInputs(syncKey, deviceId, policyKey);
+            folderSync.runFolderSync(syncKey, deviceId, policyKey);
+        } catch (IllegalArgumentException e) {
+            logger.warning("Invalid Error: " + e.getMessage());
+        } catch (FileNotFoundException e) {
+            logger.log(Level.SEVERE, "Simulation file not found: ", e);
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "IO Error while reading the simulation file: ", e);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Unexpected error occurred.", e);
+        }
+    }
+
+    private static void configureLogging() {
+        Logger rootLogger = Logger.getLogger("");
+        Handler consoleHandler = new ConsoleHandler();
+        consoleHandler.setLevel(Level.ALL);
+        rootLogger.addHandler(consoleHandler);
+        rootLogger.setLevel(Level.INFO);
+    }
+
+    //  Validate inputs
+    private static void validateInputs(String syncKey, String deviceId, String policyKey) {
+        if (syncKey == null || syncKey.isEmpty())
+            throw new IllegalArgumentException("SyncKey cannot be null or empty.");
+        if (deviceId == null || deviceId.isEmpty())
+            throw new IllegalArgumentException("DeviceId cannot be null or empty.");
+        if (policyKey == null || policyKey.isEmpty())
+            throw new IllegalArgumentException("PolicyKey cannot be null or empty.");
     }
 }
